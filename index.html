@@ -124,14 +124,15 @@
       pointer-events: none;
     }
 
-    .credit-letter {
+    .exploding-letter {
       position: fixed;
       color: #777;
       font-size: 14px;
       font-weight: bold;
       pointer-events: none;
       z-index: 1001;
-      transform-origin: center;
+      white-space: pre;
+      will-change: transform, opacity;
     }
   </style>
 </head>
@@ -272,14 +273,11 @@
             explode();
           }
 
-          explodeCreditLetters();
+          explodeCredit();
 
           resetButton.style.display = "block";
-
         });
-
       }
-
     });
 
     function speak(text, callback) {
@@ -300,27 +298,37 @@
       speechSynthesis.speak(voice);
     }
 
-    function explodeCreditLetters() {
+    function explodeCredit() {
 
-      const text = "made by malek rami";
+      const text = credit.textContent;
+
+      /*
+        Get the exact position of the original credit
+        BEFORE hiding it.
+      */
 
       const rect = credit.getBoundingClientRect();
 
-      credit.style.opacity = "0";
+      /*
+        Completely remove the original from visibility.
+        It will NOT return until GO BACK is clicked.
+      */
 
-      const temporaryLetters = [];
+      credit.style.display = "none";
 
       /*
-        Measure each letter individually so every letter
-        starts exactly where it originally appeared.
+        Create an invisible measuring element so we can
+        calculate the exact position of every letter.
       */
 
       const measure = document.createElement("div");
 
       measure.style.position = "fixed";
+      measure.style.left = "0";
+      measure.style.top = "0";
       measure.style.visibility = "hidden";
       measure.style.whiteSpace = "nowrap";
-      measure.style.font = getComputedStyle(credit).font;
+      measure.style.fontFamily = getComputedStyle(credit).fontFamily;
       measure.style.fontSize = getComputedStyle(credit).fontSize;
       measure.style.fontWeight = getComputedStyle(credit).fontWeight;
 
@@ -328,46 +336,40 @@
 
       let currentX = rect.left;
 
-      for (const letter of text) {
+      for (const character of text) {
 
-        const span = document.createElement("span");
+        const measurement = document.createElement("span");
 
-        span.textContent = letter === " " ? "\u00A0" : letter;
+        measurement.textContent =
+          character === " " ? "\u00A0" : character;
 
-        measure.appendChild(span);
+        measure.appendChild(measurement);
 
-        const width = span.getBoundingClientRect().width;
+        const width =
+          measurement.getBoundingClientRect().width;
 
-        temporaryLetters.push({
-          letter,
-          x: currentX,
-          y: rect.top
-        });
+        const letter = document.createElement("span");
 
-        currentX += width;
-      }
+        letter.className = "exploding-letter";
 
-      measure.remove();
+        letter.textContent =
+          character === " " ? "\u00A0" : character;
 
-      temporaryLetters.forEach((data, index) => {
+        letter.style.left = `${currentX}px`;
+        letter.style.top = `${rect.top}px`;
 
-        const span = document.createElement("span");
+        document.body.appendChild(letter);
 
-        span.textContent =
-          data.letter === " " ? "\u00A0" : data.letter;
-
-        span.className = "credit-letter";
-
-        span.style.left = `${data.x}px`;
-        span.style.top = `${data.y}px`;
-
-        document.body.appendChild(span);
+        /*
+          Every letter gets a completely different
+          explosion direction.
+        */
 
         const angle =
           Math.random() * Math.PI * 2;
 
         const distance =
-          Math.random() * 500 + 250;
+          Math.random() * 700 + 250;
 
         const x =
           Math.cos(angle) * distance;
@@ -376,19 +378,19 @@
           Math.sin(angle) * distance;
 
         const rotation =
-          Math.random() * 1440 - 720;
+          Math.random() * 1800 - 900;
 
         const duration =
-          Math.random() * 900 + 900;
+          Math.random() * 1000 + 1000;
 
         const delay =
-          Math.random() * 150;
+          Math.random() * 100;
 
-        span.animate(
+        letter.animate(
           [
             {
               transform:
-                "translate(0px, 0px) rotate(0deg) scale(1)",
+                "translate(0, 0) rotate(0deg) scale(1)",
               opacity: 1
             },
             {
@@ -398,16 +400,19 @@
             }
           ],
           {
-            duration,
-            delay,
-            easing: "cubic-bezier(.1,.8,.2,1)",
+            duration: duration,
+            delay: delay,
+            easing: "cubic-bezier(.15,.8,.2,1)",
             fill: "forwards"
           }
         ).onfinish = () => {
-          span.remove();
+          letter.remove();
         };
 
-      });
+        currentX += width;
+      }
+
+      measure.remove();
     }
 
     function explode() {
@@ -433,16 +438,23 @@
 
       document.body.appendChild(particle);
 
-      const angle = Math.random() * Math.PI * 2;
-      const distance = Math.random() * 600 + 100;
+      const angle =
+        Math.random() * Math.PI * 2;
 
-      const x = Math.cos(angle) * distance;
-      const y = Math.sin(angle) * distance;
+      const distance =
+        Math.random() * 600 + 100;
+
+      const x =
+        Math.cos(angle) * distance;
+
+      const y =
+        Math.sin(angle) * distance;
 
       particle.animate(
         [
           {
-            transform: "translate(-50%, -50%) scale(1)",
+            transform:
+              "translate(-50%, -50%) scale(1)",
             opacity: 1
           },
           {
@@ -452,8 +464,11 @@
           }
         ],
         {
-          duration: Math.random() * 1000 + 500,
-          easing: "cubic-bezier(.1,.8,.2,1)"
+          duration:
+            Math.random() * 1000 + 500,
+
+          easing:
+            "cubic-bezier(.1,.8,.2,1)"
         }
       ).onfinish = () => particle.remove();
     }
@@ -474,12 +489,24 @@
 
       button.textContent = "DO NOT CLICK";
 
+      /*
+        Bring the ORIGINAL credit back only here.
+      */
+
+      credit.style.display = "block";
       credit.textContent = "made by malek rami";
       credit.style.opacity = "1";
       credit.style.transform = "translateX(-50%)";
 
-      clickCount = 0;
+      /*
+        Remove any leftover exploding letters just in case.
+      */
 
+      document
+        .querySelectorAll(".exploding-letter")
+        .forEach(letter => letter.remove());
+
+      clickCount = 0;
     });
   </script>
 
