@@ -150,8 +150,15 @@
     const button = document.getElementById("boomButton");
     const message = document.getElementById("message");
     const resetButton = document.getElementById("resetButton");
+    const credit = document.getElementById("credit");
 
     let clickCount = 0;
+
+    window.addEventListener("load", () => {
+      setTimeout(() => {
+        speak("DO NOT CLICK");
+      }, 300);
+    });
 
     button.addEventListener("click", () => {
 
@@ -255,6 +262,17 @@
             explode();
           }
 
+          credit.animate(
+            [
+              { transform: "translate(-50%, 0) scale(1)", opacity: 1 },
+              { transform: "translate(-50%, 150px) scale(0)", opacity: 0 }
+            ],
+            {
+              duration: 800,
+              easing: "ease-out"
+            }
+          );
+
           resetButton.style.display = "block";
 
         });
@@ -344,6 +362,9 @@
       button.style.display = "block";
 
       button.textContent = "DO NOT CLICK";
+
+      credit.style.opacity = "1";
+      credit.style.transform = "translateX(-50%)";
 
       clickCount = 0;
 
