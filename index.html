@@ -262,16 +262,44 @@
             explode();
           }
 
-          credit.animate(
-            [
-              { transform: "translate(-50%, 0) scale(1)", opacity: 1 },
-              { transform: "translate(-50%, 150px) scale(0)", opacity: 0 }
-            ],
-            {
-              duration: 800,
-              easing: "ease-out"
-            }
-          );
+          const letters = credit.textContent.split("");
+
+          credit.textContent = "";
+
+          letters.forEach((letter) => {
+
+            const span = document.createElement("span");
+
+            span.textContent = letter === " " ? "\u00A0" : letter;
+
+            span.style.display = "inline-block";
+
+            credit.appendChild(span);
+
+            const angle = Math.random() * Math.PI * 2;
+            const distance = Math.random() * 500 + 150;
+
+            const x = Math.cos(angle) * distance;
+            const y = Math.sin(angle) * distance;
+
+            span.animate(
+              [
+                {
+                  transform: "translate(0, 0) rotate(0deg) scale(1)",
+                  opacity: 1
+                },
+                {
+                  transform:
+                    `translate(${x}px, ${y}px) rotate(${Math.random() * 720 - 360}deg) scale(0)`,
+                  opacity: 0
+                }
+              ],
+              {
+                duration: Math.random() * 700 + 500,
+                easing: "cubic-bezier(.1,.8,.2,1)"
+              }
+            );
+          });
 
           resetButton.style.display = "block";
 
@@ -363,6 +391,7 @@
 
       button.textContent = "DO NOT CLICK";
 
+      credit.textContent = "made by malek rami";
       credit.style.opacity = "1";
       credit.style.transform = "translateX(-50%)";
 
