@@ -301,11 +301,12 @@
     function explodeCredit() {
 
       const text = credit.textContent;
-
       const rect = credit.getBoundingClientRect();
 
+      // Completely hide the original credit.
       credit.style.display = "none";
 
+      // Temporary element used to accurately measure every character.
       const measure = document.createElement("div");
 
       measure.style.position = "fixed";
@@ -345,11 +346,18 @@
 
         document.body.appendChild(letter);
 
+        /*
+          Every letter gets its own random trajectory.
+
+          The letters first stay visible for a tiny moment,
+          then violently launch outward.
+        */
+
         const angle =
           Math.random() * Math.PI * 2;
 
         const distance =
-          Math.random() * 700 + 250;
+          Math.random() * 900 + 500;
 
         const x =
           Math.cos(angle) * distance;
@@ -358,37 +366,61 @@
           Math.sin(angle) * distance;
 
         const rotation =
-          Math.random() * 1800 - 900;
-
-        /*
-          SLOWED DOWN:
-          Before: 1000–2000ms
-          Now:    2500–3500ms
-        */
+          Math.random() * 2400 - 1200;
 
         const duration =
-          Math.random() * 1000 + 2500;
+          Math.random() * 1800 + 4200;
 
         const delay =
-          Math.random() * 250;
+          Math.random() * 180;
 
         letter.animate(
           [
             {
               transform:
                 "translate(0, 0) rotate(0deg) scale(1)",
-              opacity: 1
+              opacity: 1,
+              offset: 0
             },
+
             {
               transform:
-                `translate(${x}px, ${y}px) rotate(${rotation}deg) scale(0)`,
-              opacity: 0
+                "translate(0, 0) rotate(0deg) scale(1.15)",
+              opacity: 1,
+              offset: 0.06
+            },
+
+            {
+              transform:
+                `translate(${x * 0.25}px, ${y * 0.25}px)
+                 rotate(${rotation * 0.25}deg)
+                 scale(1.05)`,
+              opacity: 1,
+              offset: 0.25
+            },
+
+            {
+              transform:
+                `translate(${x * 0.65}px, ${y * 0.65}px)
+                 rotate(${rotation * 0.65}deg)
+                 scale(0.75)`,
+              opacity: 0.8,
+              offset: 0.65
+            },
+
+            {
+              transform:
+                `translate(${x}px, ${y}px)
+                 rotate(${rotation}deg)
+                 scale(0)`,
+              opacity: 0,
+              offset: 1
             }
           ],
           {
             duration: duration,
             delay: delay,
-            easing: "cubic-bezier(.15,.8,.2,1)",
+            easing: "cubic-bezier(.12,.75,.18,1)",
             fill: "forwards"
           }
         ).onfinish = () => {
