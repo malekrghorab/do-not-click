@@ -123,6 +123,16 @@
       z-index: 1001;
       pointer-events: none;
     }
+
+    .credit-letter {
+      position: fixed;
+      color: #777;
+      font-size: 14px;
+      font-weight: bold;
+      pointer-events: none;
+      z-index: 1001;
+      transform-origin: center;
+    }
   </style>
 </head>
 
@@ -262,44 +272,7 @@
             explode();
           }
 
-          const letters = credit.textContent.split("");
-
-          credit.textContent = "";
-
-          letters.forEach((letter) => {
-
-            const span = document.createElement("span");
-
-            span.textContent = letter === " " ? "\u00A0" : letter;
-
-            span.style.display = "inline-block";
-
-            credit.appendChild(span);
-
-            const angle = Math.random() * Math.PI * 2;
-            const distance = Math.random() * 500 + 150;
-
-            const x = Math.cos(angle) * distance;
-            const y = Math.sin(angle) * distance;
-
-            span.animate(
-              [
-                {
-                  transform: "translate(0, 0) rotate(0deg) scale(1)",
-                  opacity: 1
-                },
-                {
-                  transform:
-                    `translate(${x}px, ${y}px) rotate(${Math.random() * 720 - 360}deg) scale(0)`,
-                  opacity: 0
-                }
-              ],
-              {
-                duration: Math.random() * 700 + 500,
-                easing: "cubic-bezier(.1,.8,.2,1)"
-              }
-            );
-          });
+          explodeCreditLetters();
 
           resetButton.style.display = "block";
 
@@ -325,6 +298,116 @@
 
       speechSynthesis.cancel();
       speechSynthesis.speak(voice);
+    }
+
+    function explodeCreditLetters() {
+
+      const text = "made by malek rami";
+
+      const rect = credit.getBoundingClientRect();
+
+      credit.style.opacity = "0";
+
+      const temporaryLetters = [];
+
+      /*
+        Measure each letter individually so every letter
+        starts exactly where it originally appeared.
+      */
+
+      const measure = document.createElement("div");
+
+      measure.style.position = "fixed";
+      measure.style.visibility = "hidden";
+      measure.style.whiteSpace = "nowrap";
+      measure.style.font = getComputedStyle(credit).font;
+      measure.style.fontSize = getComputedStyle(credit).fontSize;
+      measure.style.fontWeight = getComputedStyle(credit).fontWeight;
+
+      document.body.appendChild(measure);
+
+      let currentX = rect.left;
+
+      for (const letter of text) {
+
+        const span = document.createElement("span");
+
+        span.textContent = letter === " " ? "\u00A0" : letter;
+
+        measure.appendChild(span);
+
+        const width = span.getBoundingClientRect().width;
+
+        temporaryLetters.push({
+          letter,
+          x: currentX,
+          y: rect.top
+        });
+
+        currentX += width;
+      }
+
+      measure.remove();
+
+      temporaryLetters.forEach((data, index) => {
+
+        const span = document.createElement("span");
+
+        span.textContent =
+          data.letter === " " ? "\u00A0" : data.letter;
+
+        span.className = "credit-letter";
+
+        span.style.left = `${data.x}px`;
+        span.style.top = `${data.y}px`;
+
+        document.body.appendChild(span);
+
+        const angle =
+          Math.random() * Math.PI * 2;
+
+        const distance =
+          Math.random() * 500 + 250;
+
+        const x =
+          Math.cos(angle) * distance;
+
+        const y =
+          Math.sin(angle) * distance;
+
+        const rotation =
+          Math.random() * 1440 - 720;
+
+        const duration =
+          Math.random() * 900 + 900;
+
+        const delay =
+          Math.random() * 150;
+
+        span.animate(
+          [
+            {
+              transform:
+                "translate(0px, 0px) rotate(0deg) scale(1)",
+              opacity: 1
+            },
+            {
+              transform:
+                `translate(${x}px, ${y}px) rotate(${rotation}deg) scale(0)`,
+              opacity: 0
+            }
+          ],
+          {
+            duration,
+            delay,
+            easing: "cubic-bezier(.1,.8,.2,1)",
+            fill: "forwards"
+          }
+        ).onfinish = () => {
+          span.remove();
+        };
+
+      });
     }
 
     function explode() {
