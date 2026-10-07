@@ -302,24 +302,9 @@
 
       const text = credit.textContent;
 
-      /*
-        Get the exact position of the original credit
-        BEFORE hiding it.
-      */
-
       const rect = credit.getBoundingClientRect();
 
-      /*
-        Completely remove the original from visibility.
-        It will NOT return until GO BACK is clicked.
-      */
-
       credit.style.display = "none";
-
-      /*
-        Create an invisible measuring element so we can
-        calculate the exact position of every letter.
-      */
 
       const measure = document.createElement("div");
 
@@ -360,11 +345,6 @@
 
         document.body.appendChild(letter);
 
-        /*
-          Every letter gets a completely different
-          explosion direction.
-        */
-
         const angle =
           Math.random() * Math.PI * 2;
 
@@ -380,11 +360,17 @@
         const rotation =
           Math.random() * 1800 - 900;
 
+        /*
+          SLOWED DOWN:
+          Before: 1000–2000ms
+          Now:    2500–3500ms
+        */
+
         const duration =
-          Math.random() * 1000 + 1000;
+          Math.random() * 1000 + 2500;
 
         const delay =
-          Math.random() * 100;
+          Math.random() * 250;
 
         letter.animate(
           [
@@ -489,18 +475,10 @@
 
       button.textContent = "DO NOT CLICK";
 
-      /*
-        Bring the ORIGINAL credit back only here.
-      */
-
       credit.style.display = "block";
       credit.textContent = "made by malek rami";
       credit.style.opacity = "1";
       credit.style.transform = "translateX(-50%)";
-
-      /*
-        Remove any leftover exploding letters just in case.
-      */
 
       document
         .querySelectorAll(".exploding-letter")
